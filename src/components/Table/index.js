@@ -1,8 +1,9 @@
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 import {
   Table,
   Thead,
   Tbody,
-  Tfoot,
   Tr,
   Th,
   Td,
@@ -10,61 +11,95 @@ import {
   Button,
 } from '@chakra-ui/react'
 
-const TableComponent = ({ data }) => {
+import EditForm from '../EditForm'
+import EditModal from '../EditModal'
+
+const TableComponent = () => {
+  const [showForm, setshowForm] = useState(false)
+  const [openModal, setOpenModal] = useState(false)
+  const [indData, setIndData] = useState({})
+  const [data, setData] = useState([])
+
+  useEffect(() => {
+    axios
+      .get('employee_data.json')
+      .then((res) => setData(res.data.data))
+      .catch((err) => console.log(err))
+  }, [])
+
+  const formHandler = (data) => {
+    setshowForm(true)
+    setIndData(data)
+  }
+
+  const ModalHandler = (data) => {
+    setOpenModal(true)
+    setIndData(data)
+  }
+
+  const closeHandler = () => {
+    setshowForm(false)
+    setOpenModal(false)
+  }
   return (
-    <TableContainer className="table-container">
-      <Table variant="simple" size="md">
-        <Thead>
-          <Tr>
-            <Th>ID</Th>
-            <Th>Name</Th>
-            <Th>EmailId</Th>
-            <Th>AadharNumber</Th>
-            <Th>PanNumber</Th>
-            <Th>EmployeeType</Th>
-            <Th>JoiningDate</Th>
-            <Th>Edit</Th>
-            <Th>Modal Edit</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {data.map(
-            ({
-              id,
-              name,
-              emailId,
-              aadharNumber,
-              panNumber,
-              employeeType,
-              joiningDate,
-            }) => (
-              <Tr>
-                <Td>{id}</Td>
-                <Td>{name}</Td>
-                <Td>{emailId}</Td>
-                <Td>{aadharNumber}</Td>
-                <Td>{panNumber}</Td>
-                <Td>{employeeType}</Td>
-                <Td>{joiningDate}</Td>
+    <>
+      <TableContainer className="table-container">
+        <Table variant="simple" size="sm">
+          <Thead>
+            <Tr>
+              <Th>ID</Th>
+              <Th>Name</Th>
+              <Th>EmailId</Th>
+              <Th>Aadhar Number</Th>
+              <Th>Pan Number</Th>
+              <Th>Employee Type</Th>
+              <Th>Joining Date</Th>
+              <Th>Edit</Th>
+              <Th>Modal Edit</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {data.map((singleData) => (
+              <Tr key={singleData.id}>
+                <Td>{singleData.id}</Td>
+                <Td>{singleData.name}</Td>
+                <Td>{singleData.emailId}</Td>
+                <Td>{singleData.aadharNumber}</Td>
+                <Td>{singleData.panNumber}</Td>
+                <Td>{singleData.employeeType}</Td>
+                <Td>{singleData.joiningDate}</Td>
                 <Td>
-                  <Button size="xs">Edit</Button>
+                  <Button size="xs" onClick={() => formHandler(singleData)}>
+                    Edit
+                  </Button>
                 </Td>
                 <Td>
-                  <Button size="xs">Modal edit</Button>
+                  <Button size="xs" onClick={() => ModalHandler(singleData)}>
+                    Modal edit
+                  </Button>
                 </Td>
               </Tr>
-            )
-          )}
-        </Tbody>
-        {/* <Tfoot>
-          <Tr>
-            <Th>To convert</Th>
-            <Th>into</Th>
-            <Th isNumeric>multiply by</Th>
-          </Tr>
-        </Tfoot> */}
-      </Table>
-    </TableContainer>
+            ))}
+          </Tbody>
+        </Table>
+      </TableContainer>
+
+      <EditForm
+        isOpen={showForm}
+        indData={indData}
+        closeHandler={closeHandler}
+        setData={setData}
+        data={data}
+      />
+
+      <EditModal
+        isOpen={openModal}
+        indData={indData}
+        closeHandler={closeHandler}
+        setData={setData}
+        data={data}
+      />
+    </>
   )
 }
 
